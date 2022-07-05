@@ -214,7 +214,7 @@ class ezGenoTrainer():
             all_pred.extend((output[:]).reshape(-1).tolist())
 
         print("Test AUC score: {:.4f}\n".format(roc_auc_score(np.array(all_label), np.array(all_pred))))
-        return roc_auc_score(np.array(all_label), np.array(all_pred))
+        return roc_auc_score(np.array(all_label), np.array(all_pred)), all_pred
 
     def train(self, train_loader, valid_loader, test_loader, enable_stage_1=True, enable_stage_2=True, enable_stage_3=True):
         ''' stage 1: train supernet '''

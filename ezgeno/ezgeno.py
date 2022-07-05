@@ -6,6 +6,9 @@ from utils import set_seed
 from dataset import prepare_all_data
 from trainer import ezGenoTrainer
 
+import h5py
+import numpy as np
+
 warnings.simplefilter('once', UserWarning)
 
 def main():
@@ -41,12 +44,16 @@ def main():
     args, _ = parser.parse_known_args()
     print(args)
     set_seed(args.seed)
+    info = args.load.split('/')
+    cell, model_id = info[1], info[2].split('.')[0]
 
     if args.eval:
         test_loader, data_source = prepare_all_data(args.trainFileList, args.trainLabel, args.testFileList, args.testLabel, args.batch_size, args.num_workers, args.eval, train_supernet=True)
         trainer = ezGenoTrainer(args, data_source)
         print("loading model and predicting testing sequence")
-        trainer.test(trainer.subnet,test_loader)
+        _, pred = trainer.test(trainer.subnet,test_loader)
+        with h5py.File(f'out/{cell}/{model_id}.h5','w') as h5f:
+            h5f.create_dataset("score", data=np.asarray(pred))
     else:
         train_loader, valid_loader, test_loader, data_source = prepare_all_data(args.trainFileList, args.trainLabel, args.testFileList, args.testLabel, args.batch_size, args.num_workers, args.eval, train_supernet=True)
         trainer = ezGenoTrainer(args, data_source)
